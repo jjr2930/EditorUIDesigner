@@ -13,6 +13,9 @@ namespace EditorGUIEditor
     [Serializable]
     public class UIElement : ScriptableObject
     {
+        const float DOTTED_VERTICAL_LINE_WIDTH = 3f;
+        const float DOTTED_HORIZONTAL_LINE_WIDTH = 1f;
+
         public UIElement parent;
         public List<UIElement> childs;
         public List<UIElementComponent> components;
@@ -27,13 +30,21 @@ namespace EditorGUIEditor
                     return localRect;
             }
         }
+        public Color tintColor;
+        
+        public void AddChild<T>() where T : UIElement
+        {
+            T newChild = CreateInstance<T>();
+            newChild.parent = this;
+            newChild.Rename();
+            newChild.localRect.size = new Vector2(100, 50);
+            newChild.localRect.position = new Vector2(100, 100);
+            newChild.Init();
+            
+            AddChild(newChild);
+        }
 
-        public E_ElementType type;
-        public string elementData;
-        public virtual bool ShouldEventSkipSelf { get { return false; } set { return; } }
-        public virtual bool ShouldEventSkipChild { get { return false; } set { return; } }
-
-        public void AddChild<T>( T child) where T : UIElement
+        public void AddChild<T>(T child) where T : UIElement
         {
             AssetDatabase.AddObjectToAsset(child, EditorGUIEditorWindow.Container);
             if (null == childs)
@@ -41,16 +52,27 @@ namespace EditorGUIEditor
 
             child.parent = this;
             childs.Add(child);
+        }
 
-            //AssetDatabase.SaveAssets();
+        public void RemoveChild(UIElement oldChild)
+        {
+            childs.Remove(oldChild);
         }
 
         public virtual void Init()
-        {
+        { 
+            Rename();
+            tintColor = Color.white;
+
             if (null == childs)
                 childs = new List<UIElement>();
 
             InitComponent();
+        }
+
+        public void Rename()
+        {
+            name = $"new{this.GetType().ToString().GetTypeNameWithOutNamespace()}";
         }
 
         public void InitComponent()
@@ -71,12 +93,12 @@ namespace EditorGUIEditor
 
         public void UpdateComponent()
         {
-            if (null == components)
-                return;
-
-            for (int i = 0; i < components.Count; i++)
+            if (null != components)
             {
-                components[i].Update();
+                for (int i = 0; i < components.Count; i++)
+                {
+                    components[i].Update();
+                }
             }
 
             for (int i = 0; i < childs.Count; i++)
@@ -91,9 +113,9 @@ namespace EditorGUIEditor
                 components = new List<UIElementComponent>();
 
             var com = CreateInstance<T>();
-            components.Add(com);
-            com.SetUIEl(this);
+            com.Owner = this;
             com.Init();
+            components.Add(com);
 
             AssetDatabase.AddObjectToAsset(com, EditorGUIEditorWindow.Container);
             EditorUtility.SetDirty(this);
@@ -107,77 +129,35 @@ namespace EditorGUIEditor
                 components[i].Input(e);
             }
 
-            if (!ShouldEventSkipChild && null != childs)
+            for (int i = 0; i < childs.Count; i++)
             {
-                for (int i = 0; i < childs.Count; i++)
-                {
-                    childs[i].Input(e);
-                }
+                childs[i].Input(e);
             }
 
-            if (!ShouldEventSkipSelf )
+            switch (e.type)
             {
-                switch (e.type)
-                {
-                    case EventType.MouseUp:
+                case EventType.MouseUp: OnMouseUp(e.mousePosition); break;
+                case EventType.MouseDrag: OnDrag(e.mousePosition, e.delta); break;
+                case EventType.DragUpdated: OnDragUpdate(e.delta); break;
+                case EventType.DragExited: OnDragEnd(e.mousePosition); break;
+                case EventType.Repaint: OnRepaint(e.mousePosition, e.delta); break;
+                case EventType.MouseDown:
+                    {
+                        switch(e.button)
                         {
-                            OnMouseUp(e.mousePosition);
-                            EditorGUIEditorSelection.DragSelection = null;
-                            e.Use();
-                        }
-                        break;
+                            case 0:
+                                OnMouseDown(e.mousePosition);
+                                break;
 
-                    case EventType.MouseDown:
-                        if (WorldRect.Contains(e.mousePosition))
-                        {                            
-                            if (null != EditorGUIEditorSelection.Selected)
-                                EditorGUIEditorSelection.Selected.OnDeselected(e.mousePosition);
-
-                            Selection.activeObject = this;
-                            EditorGUIEditorSelection.Selected = this;
-                            OnSelected(e.mousePosition);
-                            e.Use();
+                            case 1:
+                                OnContextMenu(e.mousePosition);
+                                break;
                         }
-                        break;
-                    
-                    case EventType.MouseDrag:
-                        {
-                            if (WorldRect.Contains(e.mousePosition)
-                                || this == EditorGUIEditorSelection.Selected)
-                            {
-                                EditorGUIEditorSelection.DragSelection = this;
-                                OnDrag(e.mousePosition, e.delta);
-                                e.Use();
-                            }
-                        }
-                        break;
-                    case EventType.DragUpdated:
-                        {
-                            Debug.Log("Drag Update");
-                            OnDragUpdate(e.delta);
-                            e.Use();
-                        }
-                        break;
-                    case EventType.DragExited:
-                        {
-                            Debug.Log("Drag Exit");
-                            OnDragEnd(e.mousePosition);
-                            EditorGUIEditorSelection.DragSelection = null;
-                            e.Use();
-                        }
-                        break;
-                    case EventType.Repaint:
-                        {
-                            OnRepaint(e.mousePosition, e.delta);
-                            //e.Use();
-                        }
-                        break;
-                    case EventType.Used:
-                        return;
-
-                    default:
-                        break;
-                }
+                    }
+                    break;
+                case EventType.Used: return;
+                default:
+                    break;
             }
         }
         public virtual void OnRepaint(Vector2 mousePosition, Vector2 delta)
@@ -209,11 +189,11 @@ namespace EditorGUIEditor
                 components[i].OnDragEnd(endPosition);
             }
         }
-        public virtual void OnSelected(Vector2 selectedPosition)
+        public virtual void OnMouseDown(Vector2 selectedPosition)
         {
             for (int i = 0; i < components.Count; i++)
             {
-                components[i].OnSelected(selectedPosition);
+                components[i].OnMouseDown(selectedPosition);
             }
         }
         public virtual void OnDeselected(Vector2 deselectedPosition)
@@ -232,24 +212,57 @@ namespace EditorGUIEditor
             }
         }
 
-        public virtual void Draw()
+        public virtual void OnContextMenu(Vector2 mousePosition)
         {
+            for (int i = 0; i < components.Count; i++)
+            {
+                components[i].OnContextMenu(mousePosition);
+            }
+        }
+
+        public virtual void RemoveAsset()
+        {
+            for (int i = 0; i < components.Count; i++)
+            {
+                components[i].RemovedAsset();
+            }
+
+            parent.RemoveChild(this);
+            AssetDatabase.RemoveObjectFromAsset(this);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+
+        public void Draw()
+        {
+            var tempColor = GUI.color;
+            GUI.color = tintColor;
+
+            OnDraw();
+
+            GUI.color = tempColor;
+
             DrawCoord();
 
             for (int i = 0; i < components.Count; i++)
             {
                 components[i].Draw();
             }
-            
+
             for (int i = 0; i < childs.Count; i++)
             {
                 childs[i].Draw();
             }
         }
 
+        public virtual void OnDraw() { }
+
         public virtual void DrawCoord()
         {
             if (null == parent)
+                return;
+
+            if (this != UISelectable.Selected)
                 return;
 
             using (var g = new Handles.DrawingScope(Color.black))
@@ -271,16 +284,16 @@ namespace EditorGUIEditor
 
                 Vector2 labelSize = new Vector2(50, 30);
 
-                Handles.DrawLine(left, leftCenter);
+                Handles.DrawDottedLine(left, leftCenter, DOTTED_HORIZONTAL_LINE_WIDTH);
                 EditorGUI.LabelField(new Rect(leftLineCenter, labelSize), (leftCenter.x - left.x).ToString());
 
-                Handles.DrawLine(right, rightCenter);
+                Handles.DrawDottedLine(right, rightCenter, DOTTED_HORIZONTAL_LINE_WIDTH);
                 EditorGUI.LabelField(new Rect(rightLineCenter, labelSize), (right.x - rightCenter.x).ToString());
 
-                Handles.DrawLine(centerTop, up);
+                Handles.DrawDottedLine(centerTop, up, DOTTED_VERTICAL_LINE_WIDTH);
                 EditorGUI.LabelField(new Rect(upLineCenter, labelSize), (centerTop.y - up.y).ToString());
 
-                Handles.DrawLine(centerBottom, bottom);
+                Handles.DrawDottedLine(centerBottom, bottom, DOTTED_VERTICAL_LINE_WIDTH);
                 EditorGUI.LabelField(new Rect(bottomLineCenter, labelSize), (bottom.y - centerBottom.y).ToString());
 
                 //Draw Width

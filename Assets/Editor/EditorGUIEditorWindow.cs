@@ -15,7 +15,7 @@ namespace EditorGUIEditor
             {
                 if (null == container)
                 {
-                    container = Selection.activeObject as UIElementContainer;
+                    container = UnityEditor.Selection.activeObject as UIElementContainer;
                 }
                 return container;
             }
@@ -34,56 +34,40 @@ namespace EditorGUIEditor
         {
             EditorGUIEditorWindow.container = container;
             var newWindow = GetWindow<EditorGUIEditorWindow>();
-            
-        } 
+
+        }
         #endregion
-        
+
         private void OnGUI()
         {
-            if(null == Container)
+            if (null == Container)
             {
                 GUILayout.Label("Please Select container...");
                 return;
             }
 
-            if (null == EditorGUIEditorSelection.Selected)
+            if (null == container.root)
             {
-                if(null == container.root)
-                {
-                    container.root = CreateInstance<UIRoot>();
-                    container.root.Init();
+                container.root = CreateInstance<UIRoot>();
+                container.root.Init();
+                container.root.name = "root";
 
-                    AssetDatabase.AddObjectToAsset(container.root, container);
-                }
-                EditorGUIEditorSelection.Selected = container.root;
+                AssetDatabase.AddObjectToAsset(container.root, container);
             }
+            EditorSelection.Selected = container.root;
 
             windowRect = position;
-
-            if (GUILayout.Button("GenerateLabel"))
-            {
-                var createdLabel = ScriptableObject.CreateInstance<UILabel>();
-                createdLabel.localRect.size = new Vector2(100, 50);
-                createdLabel.localRect.position = new Vector2(100, 100);
-                createdLabel.Init();
-                EditorGUIEditorSelection.Selected.AddChild(createdLabel);
-            }
-
-            if(GUILayout.Button("Generate Button"))
-            {
-                var createdButton = CreateInstance<UIButton>();
-                createdButton.localRect.size = new Vector2(100, 50);
-                createdButton.localRect.position = new Vector2(100, 100);
-                createdButton.Init();
-                EditorGUIEditorSelection.Selected.AddChild(createdButton);
-            }
-
+            
             using (var c = new EditorGUI.ChangeCheckScope())
             {
                 container.root.Input(Event.current);
                 container.root.Draw();
                 if (c.changed)
+                {
                     EditorUtility.SetDirty(container);
+                    //AssetDatabase.SaveAssets();
+                    //AssetDatabase.Refresh();
+                }
             }
         }
     }

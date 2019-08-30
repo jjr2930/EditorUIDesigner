@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace EditorGUIEditor
 {
+    [Serializable]
     public class UIButton : UIElement
     {
         public string labelText;
@@ -26,25 +27,21 @@ namespace EditorGUIEditor
         public override void Init()
         {
             base.Init();
+
             AddComponent<UIResizeable>();
-            //AddComponent<UIDraggable>();
+            AddComponent<UIDraggable>();
+            AddComponent<UISelectable>();
+            AddComponent<UIContextMenuComponent>();
         }
 
-        public override void Draw()
+        public override void OnDraw()
         {
-            if(GUI.Button(WorldRect, labelText))
+            base.OnDraw();
+            if (GUI.Button(WorldRect, labelText))
             {
                 if(null != callback)
                     callback(this);
-            }
-
-            base.Draw();
+            }            
         }
-
-        //public override void OnDrag(Vector2 mousePosition, Vector2 delta)
-        //{
-        //    base.OnDrag(mousePosition, delta);
-        //    localRect.position += delta;
-        //}
     }
 }

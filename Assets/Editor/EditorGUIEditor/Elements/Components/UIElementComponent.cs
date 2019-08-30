@@ -1,27 +1,45 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace EditorGUIEditor
 {
+    [Serializable]
     public class UIElementComponent : ScriptableObject
     {
-        protected UIElement uiElement= null;
-        public void SetUIEl(UIElement el)
+        [SerializeField] protected UIElement owner;
+        public UIElement Owner
         {
-            uiElement = el;
+            get { return owner; }
+            set { owner = value; }
         }
 
-        public virtual void Init() { }
+        public virtual void Init()
+        {
+            Rename();
+        }
+
+        public void Rename()
+        {
+            name = $"{owner.name}_new{this.GetType().ToString().GetTypeNameWithOutNamespace()}";
+        }
+
         public virtual void Input(Event e) { }
         public virtual void Update() { }
         public virtual void Draw() { }
         public virtual void OnDrag(Vector2 mousePosition, Vector2 delta) { }
         public virtual void OnDragUpdate(Vector2 updatePosition) { }
         public virtual void OnDragEnd(Vector2 endPosition) { }
-        public virtual void OnSelected(Vector2 selectedPosition) { }
         public virtual void OnDeselected(Vector2 deselectedPosition) { }
         public virtual void OnRepaint(Vector2 mousePosition, Vector2 delta) { }
         public virtual void OnMouseUp(Vector2 mousePosition) { }
+        public virtual void OnMouseDown(Vector2 mousePosition) { }
+        public virtual void OnContextMenu(Vector2 mousPosition) { }
+        public virtual void RemovedAsset()
+        {
+            AssetDatabase.RemoveObjectFromAsset(this);
+        }
     }
 }

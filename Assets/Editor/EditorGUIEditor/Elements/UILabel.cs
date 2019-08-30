@@ -2,46 +2,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace EditorGUIEditor
 {
+    [Serializable]
     public class UILabel : UIElement
     {
         public string value = "new label";
 
-        public override bool ShouldEventSkipChild
+        public override void Init()
         {
-            get
-            {
-                return false;
-            }
+            base.Init();
+            AddComponent<UIDraggable>();
+            AddComponent<UIResizeable>();
+            AddComponent<UISelectable>();
         }
 
-        public override bool ShouldEventSkipSelf
-        {
-            get
-            {
-                return false;
-            }
-        }
 
-        public override void Draw()
+        public override void OnDraw()
         {
             value = GUI.TextField(WorldRect, value);
             
-            base.Draw();
+            base.OnDraw();
         }
 
-        public override void OnSelected(Vector2 selectedPosition)
+        public override void OnMouseDown(Vector2 selectedPosition)
         {
-            base.OnSelected(selectedPosition);
-            Selection.activeObject = this;
-        }
-
-        public override void OnDrag(Vector2 mousePosition, Vector2 delta)
-        {
-            base.OnDrag(mousePosition, delta);
-            localRect.position += delta;
+            base.OnMouseDown(selectedPosition);
+            UnityEditor.Selection.activeObject = this;
         }
     }
 }

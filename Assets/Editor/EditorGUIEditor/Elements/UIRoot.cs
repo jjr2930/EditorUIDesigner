@@ -1,23 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace EditorGUIEditor
 {
+    [Serializable]
     public class UIRoot : UIElement
     {
-        public override bool ShouldEventSkipSelf
-        {
-            get
-            {
-                return true;
-            }
-
-            set
-            {
-                return;
-            }
-        }
         public override Rect WorldRect
         {
             get
@@ -27,10 +17,16 @@ namespace EditorGUIEditor
                 return localRect;
             }
         }
-        
-        public override void Draw()
+
+        public override void Init()
         {
-            base.Draw();
+            base.Init();
+            AddComponent<UIContextMenuComponent>();
+        }
+
+        public override void OnDraw()
+        {
+            base.OnDraw();
         }
     }
 }
