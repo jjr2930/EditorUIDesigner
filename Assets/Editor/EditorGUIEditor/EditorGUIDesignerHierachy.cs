@@ -7,6 +7,7 @@ namespace EditorGUIDesigner
     {
         readonly float INDENT_SIZE = 10f;
         readonly GUILayoutOption GUI_WIDTH = GUILayout.Width(100);
+
         [MenuItem("Tools/EditorGUIDesigner/Hierachy")]
         static void OpenWindow()
         {
@@ -18,7 +19,10 @@ namespace EditorGUIDesigner
         {
             get
             {
-                if (root == null)
+                if (null == EditorGUIEditorWindow.Container)
+                    return null;
+
+                if (root == null || EditorGUIEditorWindow.Container.root != root)
                 {
                     var container = Selection.activeObject as UIElementContainer;
                     if (null == container)
