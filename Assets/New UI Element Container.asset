@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8227631671029496311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e414bf74dcf2e44096b1a642980bf64, type: 3}
+  m_Name: newUIRoot_newUIContextMenuComponent
+  m_EditorClassIdentifier: 
+  owner: {fileID: -714433907207800145}
+--- !u!114 &-714433907207800145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54f5247dde63eda489de397333986d4b, type: 3}
+  m_Name: newUIRoot
+  m_EditorClassIdentifier: 
+  fold: 0
+  parent: {fileID: 0}
+  childs: []
+  components:
+  - {fileID: -8227631671029496311}
+  localRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1198
+    height: 629
+  tintColor: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28b796255c84f142979b533d55c7094, type: 3}
+  m_Name: New UI Element Container
+  m_EditorClassIdentifier: 
+  root: {fileID: -714433907207800145}

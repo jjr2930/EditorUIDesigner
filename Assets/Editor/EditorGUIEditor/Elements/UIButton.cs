@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     [Serializable]
     public class UIButton : UIElement

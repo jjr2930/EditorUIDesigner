@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     public static class EditorSelection
     {
@@ -22,7 +22,7 @@ namespace EditorGUIEditor
             }
             set
             {
-                Debug.Log("Selection : " + value.GetInstanceID());
+                //Debug.Log("Selection : " + value.GetInstanceID());
                 selected = value;
                 if(null != onSelectionChanged)
                     onSelectionChanged(value);

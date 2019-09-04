@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEditor;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     [CustomEditor(typeof(UIButton))]
     public class EditorButtonInspector : EditorElementInspector

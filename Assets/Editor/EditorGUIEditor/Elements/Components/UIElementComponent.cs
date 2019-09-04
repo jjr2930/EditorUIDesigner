@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     [Serializable]
     public class UIElementComponent : ScriptableObject
@@ -36,6 +36,7 @@ namespace EditorGUIEditor
         public virtual void OnRepaint(Vector2 mousePosition, Vector2 delta) { }
         public virtual void OnMouseUp(Vector2 mousePosition) { }
         public virtual void OnMouseDown(Vector2 mousePosition) { }
+        public virtual void OnMouseMove(Vector2 mousePosition, Vector2 delta) { }
         public virtual void OnContextMenu(Vector2 mousPosition) { }
         public virtual void RemovedAsset()
         {

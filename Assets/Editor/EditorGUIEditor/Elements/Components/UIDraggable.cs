@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     [Serializable]
     public class UIDraggable : UIElementComponent
@@ -28,12 +28,13 @@ namespace EditorGUIEditor
 
         public override void OnDrag(Vector2 mousePosition, Vector2 delta)
         {
-            Debug.Log("UI Draggable : OnDrag");
+            //Debug.Log("UI Draggable : OnDrag");
             base.OnDrag(mousePosition, delta);
             if (dragObj == owner)
             {
                 owner.localRect.position += delta;
                 Event.current.Use();
+                owner.RefreshMaxXY();
             }
         }
     }

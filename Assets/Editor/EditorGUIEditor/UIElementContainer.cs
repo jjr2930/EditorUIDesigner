@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     [CreateAssetMenu(menuName = "Create New UI Coord Data")]
     public class UIElementContainer : ScriptableObject
     {
-        public UIElement root;
+        public UIRoot root;
     }
 }
