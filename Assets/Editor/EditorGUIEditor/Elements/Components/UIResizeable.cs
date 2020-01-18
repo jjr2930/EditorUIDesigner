@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     public enum E_SelectedPoint
     {
@@ -44,14 +44,15 @@ namespace EditorGUIEditor
                                             owner.WorldRect.GetRightTop(), owner.WorldRect.GetLeftTop(),
                                             owner.WorldRect.GetLeftBottom());
 
-                    Handles.DrawSolidRectangleWithOutline(LeftTopPoint, new Color(0, 0, 0, 0), Color.black);
-                    Handles.DrawSolidRectangleWithOutline(LeftCenterPoint, new Color(0, 0, 0, 0), Color.black);
-                    Handles.DrawSolidRectangleWithOutline(LeftBottomPoint, new Color(0, 0, 0, 0), Color.black);
-                    Handles.DrawSolidRectangleWithOutline(CenterTopPoint, new Color(0, 0, 0, 0), Color.black);
-                    Handles.DrawSolidRectangleWithOutline(CenterBottomPoint, new Color(0, 0, 0, 0), Color.black);
-                    Handles.DrawSolidRectangleWithOutline(RightTopPoint, new Color(0, 0, 0, 0), Color.black);
-                    Handles.DrawSolidRectangleWithOutline(RightCenterPoint, new Color(0, 0, 0, 0), Color.black);
-                    Handles.DrawSolidRectangleWithOutline(RightBottomPoint, new Color(0, 0, 0, 0), Color.black);
+
+                    Handles.DrawSolidRectangleWithOutline(LeftTopPoint, GetPointColor(E_SelectedPoint.LeftTop), Color.black);
+                    Handles.DrawSolidRectangleWithOutline(LeftCenterPoint, GetPointColor(E_SelectedPoint.LeftCenter), Color.black);
+                    Handles.DrawSolidRectangleWithOutline(LeftBottomPoint, GetPointColor(E_SelectedPoint.LeftBottom), Color.black);
+                    Handles.DrawSolidRectangleWithOutline(CenterTopPoint, GetPointColor(E_SelectedPoint.CenterTop), Color.black);
+                    Handles.DrawSolidRectangleWithOutline(CenterBottomPoint, GetPointColor(E_SelectedPoint.CenterBottom), Color.black);
+                    Handles.DrawSolidRectangleWithOutline(RightTopPoint, GetPointColor(E_SelectedPoint.RightTop), Color.black);
+                    Handles.DrawSolidRectangleWithOutline(RightCenterPoint, GetPointColor(E_SelectedPoint.RightCenter), Color.black);
+                    Handles.DrawSolidRectangleWithOutline(RightBottomPoint, GetPointColor(E_SelectedPoint.RightBottom), Color.black);
                 }
             }
         }
@@ -80,14 +81,38 @@ namespace EditorGUIEditor
         {
             base.OnMouseUp(mousePosition);
             resizeStart = false;
+            hoveredPoint = E_SelectedPoint.None;
         }
+
+        //public override void OnMouseMove(Vector2 mousePosition, Vector2 delta)
+        //{
+        //    base.OnMouseMove(mousePosition, delta);
+        //    if (LeftTopPoint.Contains(mousePosition))
+        //        hoveredPoint = E_SelectedPoint.LeftTop;
+        //    else if (LeftCenterPoint.Contains(mousePosition))
+        //        hoveredPoint = E_SelectedPoint.LeftCenter;
+        //    else if (LeftBottomPoint.Contains(mousePosition))
+        //        hoveredPoint = E_SelectedPoint.LeftBottom;
+        //    else if (CenterTopPoint.Contains(mousePosition))
+        //        hoveredPoint = E_SelectedPoint.CenterTop;
+        //    else if (CenterBottomPoint.Contains(mousePosition))
+        //        hoveredPoint = E_SelectedPoint.CenterBottom;
+        //    else if (RightTopPoint.Contains(mousePosition))
+        //        hoveredPoint = E_SelectedPoint.RightTop;
+        //    else if (RightCenterPoint.Contains(mousePosition))
+        //        hoveredPoint = E_SelectedPoint.RightCenter;
+        //    else if (RightBottomPoint.Contains(mousePosition))
+        //        hoveredPoint = E_SelectedPoint.RightBottom;
+        //    else
+        //        hoveredPoint = E_SelectedPoint.None;
+        //}
 
         public override void OnDrag(Vector2 mousePosition, Vector2 delta)
         {
             base.OnDrag(mousePosition, delta);
             if (resizeStart)
             {
-                Debug.Log("UI Resizeable : OnDrag");
+                //Debug.Log("UI Resizeable : OnDrag");
                 Event.current.Use();
                 switch (hoveredPoint)
                 {
@@ -140,7 +165,15 @@ namespace EditorGUIEditor
                     default:
                         break;
                 }
+
+
+                owner.RefreshMaxXY();
             }
+        }
+
+        Color GetPointColor(E_SelectedPoint where)
+        {
+            return where == hoveredPoint ? Color.black : new Color(0f, 0f, 0f, 0f);
         }
 
         void ContainsMousePositionAndStartResize(Rect r, Vector2 p, E_SelectedPoint where)
@@ -150,6 +183,30 @@ namespace EditorGUIEditor
                 resizeStart = true;
                 hoveredPoint = where;
                 selected = owner;
+                switch (where)
+                {
+                    case E_SelectedPoint.LeftTop:
+                    case E_SelectedPoint.RightBottom:
+                        EditorGUIUtility.AddCursorRect(r, MouseCursor.ResizeUpLeft);
+                        break;
+
+                    case E_SelectedPoint.CenterTop:
+                    case E_SelectedPoint.CenterBottom:
+                        EditorGUIUtility.AddCursorRect(r, MouseCursor.ResizeVertical);
+                        break;
+
+                    case E_SelectedPoint.RightTop:
+                    case E_SelectedPoint.LeftBottom:
+                        EditorGUIUtility.AddCursorRect(r, MouseCursor.ResizeUpRight);
+                        break;
+
+                    case E_SelectedPoint.RightCenter:
+                    case E_SelectedPoint.LeftCenter:
+                        EditorGUIUtility.AddCursorRect(r, MouseCursor.ResizeHorizontal);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 

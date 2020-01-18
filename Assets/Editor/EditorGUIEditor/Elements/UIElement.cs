@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     public enum E_ElementType
     {
@@ -13,8 +13,35 @@ namespace EditorGUIEditor
     [Serializable]
     public class UIElement : ScriptableObject
     {
-        const float DOTTED_VERTICAL_LINE_WIDTH = 3f;
-        const float DOTTED_HORIZONTAL_LINE_WIDTH = 1f;
+        public bool fold = false;
+        const float DOTTED_VERTICAL_LINE_WIDTH = 1f;
+        const float DOTTED_HORIZONTAL_LINE_WIDTH = .3f;
+
+        public static float XMax
+        {
+            set
+            {
+                xMax = value;
+            }
+            get
+            {
+                return (xMax <= 10f) ? 10 : xMax;
+            }
+        }
+        public static float YMax
+        {
+            set
+            {
+                yMax = value;
+            }
+            get
+            {
+                return (yMax <= 10f) ? 10 : yMax;
+            }
+        }
+
+        static float xMax = 0;
+        static float yMax = 0;
 
         public UIElement parent;
         public List<UIElement> childs;
@@ -30,8 +57,10 @@ namespace EditorGUIEditor
                     return localRect;
             }
         }
+
+
         public Color tintColor;
-        
+
         public void AddChild<T>() where T : UIElement
         {
             T newChild = CreateInstance<T>();
@@ -40,7 +69,7 @@ namespace EditorGUIEditor
             newChild.localRect.size = new Vector2(100, 50);
             newChild.localRect.position = new Vector2(100, 100);
             newChild.Init();
-            
+
             AddChild(newChild);
         }
 
@@ -52,6 +81,11 @@ namespace EditorGUIEditor
 
             child.parent = this;
             childs.Add(child);
+
+            EditorUtility.SetDirty(EditorGUIEditorWindow.Container);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            
         }
 
         public void RemoveChild(UIElement oldChild)
@@ -60,7 +94,7 @@ namespace EditorGUIEditor
         }
 
         public virtual void Init()
-        { 
+        {
             Rename();
             tintColor = Color.white;
 
@@ -118,7 +152,9 @@ namespace EditorGUIEditor
             components.Add(com);
 
             AssetDatabase.AddObjectToAsset(com, EditorGUIEditorWindow.Container);
-            EditorUtility.SetDirty(this);
+            EditorUtility.SetDirty(EditorGUIEditorWindow.Container);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         public void Input(Event e)
@@ -143,7 +179,7 @@ namespace EditorGUIEditor
                 case EventType.Repaint: OnRepaint(e.mousePosition, e.delta); break;
                 case EventType.MouseDown:
                     {
-                        switch(e.button)
+                        switch (e.button)
                         {
                             case 0:
                                 OnMouseDown(e.mousePosition);
@@ -155,11 +191,21 @@ namespace EditorGUIEditor
                         }
                     }
                     break;
+                //case EventType.MouseMove: OnMouseMove(e.mousePosition, e.delta); break;
                 case EventType.Used: return;
                 default:
                     break;
             }
         }
+
+        private void OnMouseMove(Vector2 mousePosition, Vector2 delta)
+        {
+            for (int i = 0; i < components.Count; i++)
+            {
+                components[i].OnMouseMove(mousePosition, delta);
+            }
+        }
+
         public virtual void OnRepaint(Vector2 mousePosition, Vector2 delta)
         {
             for (int i = 0; i < components.Count; i++)
@@ -222,13 +268,21 @@ namespace EditorGUIEditor
 
         public virtual void RemoveAsset()
         {
-            for (int i = 0; i < components.Count; i++)
+            while(childs.Count > 0)
             {
-                components[i].RemovedAsset();
+                childs[0].RemoveAsset();
+                DestroyImmediate(childs[0], true);
+                childs.RemoveAt(0);
             }
 
-            parent.RemoveChild(this);
-            AssetDatabase.RemoveObjectFromAsset(this);
+
+            while(components.Count > 0)
+            {
+                Debug.Log($"remove component : {components[0].name}");
+                DestroyImmediate(components[0], true);
+                components.RemoveAt(0);
+            }
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
@@ -256,6 +310,12 @@ namespace EditorGUIEditor
         }
 
         public virtual void OnDraw() { }
+
+        public void RefreshMaxXY()
+        {
+            XMax = WorldRect.xMax > XMax ? WorldRect.xMax : XMax;
+            YMax = WorldRect.yMax > YMax ? WorldRect.yMax : YMax;
+        }
 
         public virtual void DrawCoord()
         {

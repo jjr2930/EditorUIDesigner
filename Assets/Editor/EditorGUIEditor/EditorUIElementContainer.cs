@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     [CustomEditor(typeof(UIElementContainer))]
     public class EditorUIElementContainer : Editor

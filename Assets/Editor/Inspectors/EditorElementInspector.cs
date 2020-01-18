@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEditor;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     [CustomEditor(typeof(UIElement))]
     public class EditorElementInspector : Editor
@@ -27,7 +27,7 @@ namespace EditorGUIEditor
                 }
             }
 
-            EditorGUILayout.Space(100);
+            EditorGUILayout.Space();
         }
 
         public override void OnInspectorGUI()
@@ -37,6 +37,11 @@ namespace EditorGUIEditor
             {
                 var element = target as UIElement;
                 element.RemoveAsset();
+                element.parent.childs.Remove(element);
+                DestroyImmediate(element, true);
+                EditorUtility.SetDirty(EditorGUIEditorWindow.Container);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
             }
         }
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     [Serializable]
     public class UILabel : UIElement
@@ -31,6 +31,11 @@ namespace EditorGUIEditor
         {
             base.OnMouseDown(selectedPosition);
             UnityEditor.Selection.activeObject = this;
+        }
+
+        public override void RemoveAsset()
+        {
+            base.RemoveAsset();
         }
     }
 }

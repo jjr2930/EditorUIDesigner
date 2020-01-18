@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     public enum E_CoordType
     {

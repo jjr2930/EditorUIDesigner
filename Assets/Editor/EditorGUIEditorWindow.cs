@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     public class EditorGUIEditorWindow : EditorWindow
     {
@@ -24,7 +24,7 @@ namespace EditorGUIEditor
         static Rect windowRect;
         public static Rect WindowRect { get { return windowRect; } }
 
-        [MenuItem("Tools/EditorGUIEditor/ElementPalette")]
+        [MenuItem("Tools/EditorGUIDesigner/EditorWindow")]
         public static void OpenWindow()
         {
             GetWindow<EditorGUIEditorWindow>();
@@ -49,10 +49,13 @@ namespace EditorGUIEditor
             if (null == container.root)
             {
                 container.root = CreateInstance<UIRoot>();
-                container.root.Init();
                 container.root.name = "root";
+                container.root.Init();
 
                 AssetDatabase.AddObjectToAsset(container.root, container);
+                EditorUtility.SetDirty(container);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
             }
             EditorSelection.Selected = container.root;
 
@@ -65,8 +68,6 @@ namespace EditorGUIEditor
                 if (c.changed)
                 {
                     EditorUtility.SetDirty(container);
-                    //AssetDatabase.SaveAssets();
-                    //AssetDatabase.Refresh();
                 }
             }
         }

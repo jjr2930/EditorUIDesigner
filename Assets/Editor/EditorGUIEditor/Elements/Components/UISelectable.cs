@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEditor;
 using System;
 
-namespace EditorGUIEditor
+namespace EditorGUIDesigner
 {
     [Serializable]
     public class UISelectable : UIElementComponent
@@ -13,6 +13,7 @@ namespace EditorGUIEditor
 
         public override void OnMouseDown(Vector2 mousePosition)
         {
+            //Debug.Log($"UISelectable : {owner.WorldRect.ToString()}");
             if(owner.WorldRect.Contains(mousePosition))
             {
                 Selected = owner;
